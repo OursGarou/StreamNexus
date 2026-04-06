@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamNet - Futuriste</title>
+    <!-- Polices futuristes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Lumières ambiantes d'arrière-plan (Neon Glows) -->
+    <div class="ambient-light light-1"></div>
+    <div class="ambient-light light-2"></div>
+    <div class="ambient-light light-3"></div>
+
+    <!-- NAVBAR (Glassmorphism ultime) -->
+    <nav id="navbar" class="nav glass-panel">
+        <div class="nav-logo">
+            <h2>STREAM<span>NEXUS</span></h2>
+        </div>
+        <div class="nav-links">
+            <a href="#" class="active">Explorer</a>
+            <a href="#">Simulations</a>
+            <a href="#">Archives</a>
+        </div>
+        <div class="nav-profile">
+            <i class="fa-solid fa-satellite-dish"></i>
+            <div class="avatar"></div>
+        </div>
+    </nav>
+
+    <!-- SEARCH SECTION -->
+    <div class="search-container">
+        <div class="search-box glass-card blur-heavy">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="search-input" placeholder="Rechercher un film...">
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT (GRILLE BENTO) -->
+    <main class="main-content" id="main-content">
+        <!-- Les cartes asymétriques seront générées ici par script.js -->
+    </main>
+
+    <!-- VIDEO MODAL (PORTAIL DE LECTURE) -->
+    <div id="video-modal" class="modal-overlay">
+        <div class="modal-content glass-panel">
+            <button class="close-modal" id="close-modal"><i class="fa-solid fa-power-off"></i></button>
+            <div class="video-container">
+                <!-- Iframe pour streaming direct (Ex: Google Drive) -->
+                <iframe id="movie-player" src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- EFFET CURSEUR GLOW -->
+    <div id="cursor-glow"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
