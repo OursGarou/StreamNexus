@@ -156,7 +156,8 @@ function renderBentoGrid(movies) {
         // Image de fond
         const bg = document.createElement('div');
         bg.classList.add('bento-bg');
-        bg.style.backgroundImage = `url('${imgUrl}')`;
+        // encodeURI permet de gérer de potentiels espaces vides accidentels dans l'URL CSV
+        bg.style.backgroundImage = `url('${encodeURI(imgUrl.trim())}')`;
 
         // Overlay d'informations
         const overlay = document.createElement('div');
