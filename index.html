@@ -52,12 +52,21 @@
 
     <!-- VIDEO MODAL (PORTAIL DE LECTURE) -->
     <div id="video-modal" class="modal-overlay">
-        <div class="modal-content glass-panel">
+        <div class="modal-content glass-panel" style="max-width: 900px; padding: 0;">
             <button class="close-modal" id="close-modal"><i class="fa-solid fa-power-off"></i></button>
-            <div class="video-container">
-                <!-- Iframe pour streaming direct (Ex: Google Drive) -->
-                <iframe id="movie-player" src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture"
-                    allowfullscreen></iframe>
+            <div class="movie-details-layout">
+                <div class="movie-poster-box">
+                    <img id="modal-poster" src="" alt="Affiche du film">
+                </div>
+                <div class="movie-info-box">
+                    <p id="modal-year" class="modal-year">202X</p>
+                    <h2 id="modal-title">Titre du film</h2>
+                    <div class="modal-actions">
+                        <a id="modal-play-btn" href="#" target="_blank" class="neon-btn">
+                            OUVRIR LE FILM <i class="fa-solid fa-play"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
