@@ -36,48 +36,89 @@ function renderSkeletons(count = 8) {
     }
 }
 
-// 2. Fetcher et Parser le CSV depuis Google Sheet
+// 2. Parseur CSV robuste (Gère les guillemets, virgules internes, sauts de ligne)
+function parseCSV(csvString) {
+    const rows = [];
+    let currentRow = [];
+    let currentCell = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < csvString.length; i++) {
+        const char = csvString[i];
+        const nextChar = csvString[i + 1];
+
+        if (char === '"' && inQuotes && nextChar === '"') {
+            // Guillemets échappés ("")
+            currentCell += '"';
+            i++; 
+        } else if (char === '"') {
+            // Début/Fin d'un bloc de guillemets
+            inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+            // Fin de la cellule
+            currentRow.push(currentCell.trim());
+            currentCell = '';
+        } else if (char === '\n' && !inQuotes) {
+            // Fin de la ligne
+            if (currentCell.endsWith('\r')) currentCell = currentCell.slice(0, -1);
+            currentRow.push(currentCell.trim());
+            rows.push(currentRow);
+            currentRow = [];
+            currentCell = '';
+        } else {
+            // Caractère standard
+            currentCell += char;
+        }
+    }
+    
+    // Ajout de la toute dernière cellule si le fichier ne finit pas par un saut de ligne
+    if (currentCell) {
+        if (currentCell.endsWith('\r')) currentCell = currentCell.slice(0, -1);
+        currentRow.push(currentCell.trim());
+    }
+    if (currentRow.length > 0) {
+        rows.push(currentRow);
+    }
+    
+    return rows;
+}
+
+// 3. Fetcher les données depuis Google Sheet
 async function loadMoviesData() {
     renderSkeletons(10); // Affiche le Squelette de chargement en attendant
 
     try {
-        const response = await fetch(GOOGLE_CSV_URL);
+        // Cache Busting : force le navigateur à télécharger la DERNIÈRE version du fichier à chaque fois
+        const finalUrl = `${GOOGLE_CSV_URL}&t=${new Date().getTime()}`; 
+        
+        // { cache: 'no-store' } indique aussi au navigateur de ne pas mettre en cache
+        const response = await fetch(finalUrl, { cache: "no-store" });
         if (!response.ok) throw new Error("Erreur serveur API / Google Sheets inaccessible.");
+        
         const csvText = await response.text();
         
         // ---- PARSING DU CSV ----
-        // On sépare par lignes
-        const lines = csvText.split(/\r?\n/);
-        if (lines.length < 2) throw new Error("Le fichier CSV est vide ou mal formaté.");
+        const rows = parseCSV(csvText);
+        if (rows.length < 2) throw new Error("Le fichier CSV est vide ou mal formaté.");
         
-        // Les en-têtes (Ligne 1)
-        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+        const headers = rows[0];
         const moviesDataArray = [];
 
-        // Les données (Ligne 2 et au-delà)
-        for(let i = 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
+        // Traitement des données (En commençant à la ligne 2)
+        for(let i = 1; i < rows.length; i++) {
+            const row = rows[i];
             
-            // Expression régulière puissante pour couper aux virgules SAUF si on est entre guillemets
-            const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            // Ignorer les lignes totalement vides
+            if (row.length === 0 || (row.length === 1 && row[0] === '')) continue;
             
             const obj = {};
             headers.forEach((header, index) => {
-                let val = values[index] ? values[index].trim() : "";
-                
-                // Retirer les guillemets de protection (CSV)
-                if(val.startsWith('"') && val.endsWith('"')) {
-                    val = val.substring(1, val.length - 1);
-                    val = val.replace(/""/g, '"'); // Gérer les guillemets échappés
-                }
-                
-                obj[header] = val;
+                obj[header] = row[index] ? row[index] : "";
             });
             moviesDataArray.push(obj);
         }
         
-        // Affiche !
+        // Démarre le rendu de l'interface
         renderBentoGrid(moviesDataArray);
 
     } catch (error) {
