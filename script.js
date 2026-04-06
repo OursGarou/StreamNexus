@@ -88,8 +88,9 @@ async function loadMoviesData() {
     renderSkeletons(10); // Affiche le Squelette de chargement en attendant
 
     try {
-        // Cache Busting : force le navigateur à télécharger la DERNIÈRE version du fichier à chaque fois
-        const finalUrl = `${GOOGLE_CSV_URL}&t=${new Date().getTime()}`; 
+        // Cache Busting : ajoute un paramètre de temps à la fin de l'URL pour forcer la mise à jour
+        const cacheSeparator = GOOGLE_CSV_URL.includes('?') ? '&' : '?';
+        const finalUrl = GOOGLE_CSV_URL + cacheSeparator + "t=" + new Date().getTime();  
         
         // { cache: 'no-store' } indique aussi au navigateur de ne pas mettre en cache
         const response = await fetch(finalUrl, { cache: "no-store" });
@@ -156,8 +157,9 @@ function renderBentoGrid(movies) {
         // Image de fond
         const bg = document.createElement('div');
         bg.classList.add('bento-bg');
-        // encodeURI permet de gérer de potentiels espaces vides accidentels dans l'URL CSV
-        bg.style.backgroundImage = `url('${encodeURI(imgUrl.trim())}')`;
+        // Nettoyage pour ignorer les espaces accidentels
+        const cleanImgUrl = imgUrl.trim();
+        bg.style.backgroundImage = "url('" + cleanImgUrl + "')";
 
         // Overlay d'informations
         const overlay = document.createElement('div');
@@ -241,10 +243,12 @@ function openVideo(url) {
     }
 
     // Gestion Intelligente des liens Google Drive
-    // On remplace /view par /preview pour permettre l'intégration (streaming iframe) sans être bloqué
-    let finalUrl = url;
-    if (finalUrl.includes('drive.google.com') && finalUrl.includes('/view')) {
-        finalUrl = finalUrl.replace('/view', '/preview');
+    // Remplace automatiquement la fin des liens par /preview pour permettre le streaming direct
+    let finalUrl = url.trim();
+    if (finalUrl.includes('drive.google.com')) {
+        finalUrl = finalUrl.replace('/view', '/preview')
+                           .replace('/edit', '/preview')
+                           .replace('/open', '/preview');
     }
 
     moviePlayer.src = finalUrl;
