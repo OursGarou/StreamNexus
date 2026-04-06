@@ -2,7 +2,7 @@
 // CONFIGURATION DYNAMIQUE (GOOGLE SHEETS CSV)
 // ==========================================
 // L'URL de sortie CSV de votre Google Sheet
-const GOOGLE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT13fqlBl1pvVXrAsKGVCsXKTEealVgxs1I7KY5mLM9bO0/pub?output=csv";
+const GOOGLE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRArNfS4CWW2xYWczoiLZ7kupnMBQXtBOo1xJwCSUlKQU5UJNafAFAABcp0bZt1ym5iWLk2uajCvHmN/pub?output=csv";
 
 // --- DOM ELEMENTS ---
 const navbar = document.getElementById('navbar');
@@ -142,12 +142,8 @@ function renderBentoGrid(movies) {
         const year = movie.Annee || movie.Année || movie.annee || "";
         const sizeRaw = movie.Taille || movie.taille || "normal";
         const sizeClass = sizeRaw.toLowerCase().trim();
-        const imgUrlRaw = movie.Image_URL || movie.image_url || movie.Image || "";
+        const imgUrl = movie.Image_URL || movie.image_url || movie.Image || "";
         const vidUrl = movie.Video_URL || movie.video_url || movie.Video || "";
-
-        // --- SÉCURITÉ IMAGE MAXIMALE ---
-        // On retire les espaces et les caractères invisibles de l'URL comme recommandé
-        const cleanImgUrl = imgUrlRaw.replace(/\s/g, '');
 
         // Wrapper principal de la carte
         const card = document.createElement('div');
@@ -160,7 +156,8 @@ function renderBentoGrid(movies) {
         // Image de fond
         const bg = document.createElement('div');
         bg.classList.add('bento-bg');
-        bg.style.backgroundImage = `url('${cleanImgUrl}')`;
+        // encodeURI permet de gérer de potentiels espaces vides accidentels dans l'URL CSV
+        bg.style.backgroundImage = `url('${encodeURI(imgUrl.trim())}')`;
 
         // Overlay d'informations
         const overlay = document.createElement('div');
@@ -244,11 +241,10 @@ function openVideo(url) {
     }
 
     // Gestion Intelligente des liens Google Drive
+    // On remplace /view par /preview pour permettre l'intégration (streaming iframe) sans être bloqué
     let finalUrl = url;
-    if (finalUrl.includes('drive.google.com')) {
-        finalUrl = finalUrl.replace('/view?usp=sharing', '/preview');
-        finalUrl = finalUrl.replace('/view?usp=drive_link', '/preview');
-        finalUrl = finalUrl.replace('/view', '/preview'); // Cas par défaut
+    if (finalUrl.includes('drive.google.com') && finalUrl.includes('/view')) {
+        finalUrl = finalUrl.replace('/view', '/preview');
     }
 
     moviePlayer.src = finalUrl;
