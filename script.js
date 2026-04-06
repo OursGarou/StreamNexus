@@ -10,7 +10,10 @@ const mainContent = document.getElementById('main-content');
 const searchInput = document.getElementById('search-input');
 const videoModal = document.getElementById('video-modal');
 const closeModalBtn = document.getElementById('close-modal');
-const moviePlayer = document.getElementById('movie-player'); // C'est maintenant une iframe
+const modalPoster = document.getElementById('modal-poster');
+const modalTitle = document.getElementById('modal-title');
+const modalYear = document.getElementById('modal-year');
+const modalPlayBtn = document.getElementById('modal-play-btn');
 const cursorGlow = document.getElementById('cursor-glow');
 
 // Garder une référence vers les éléments rendus pour la recherche
@@ -173,8 +176,8 @@ function renderBentoGrid(movies) {
         inner.appendChild(overlay);
         card.appendChild(inner);
 
-        // Interaction d'ouverture vidéo (Iframe Google Drive)
-        card.addEventListener('click', () => openVideo(vidUrl));
+        // Interaction d'ouverture vidéo (Modale Fiche Descriptive)
+        card.addEventListener('click', () => openVideo(title, year, imgUrl, vidUrl));
 
         // --- EFFET 3D PARALLAXE AU SURVOL ---
         card.addEventListener('mousemove', (e) => {
@@ -235,31 +238,27 @@ document.addEventListener('mousemove', (e) => {
     cursorGlow.style.top = `${e.clientY}px`;
 });
 
-// Outil Vidéo Iframe
-function openVideo(url) {
+// Outil Modale (Fiche Info)
+function openVideo(title, year, imgUrl, url) {
     if(!url || url.trim() === "null" || url.trim() === "") {
         alert("Ce fichier n'a pas encore de lien vidéo.");
         return;
     }
 
-    // Gestion Intelligente des liens Google Drive
-    // Remplace exactement les balises par .replace() en chaîne de texte standard
+    // Le lien est pris pur avec target="_blank"
     let finalUrl = url.trim();
-    if (finalUrl.includes('drive.google.com')) {
-        finalUrl = finalUrl.replace('/view', '/preview')
-                           .replace('/edit', '/preview')
-                           .replace('/open', '/preview');
-    }
 
-    moviePlayer.src = finalUrl;
+    // Injection des données dans la fiche
+    modalPoster.src = imgUrl;
+    modalTitle.textContent = title;
+    modalYear.textContent = year;
+    modalPlayBtn.href = finalUrl;
+
     videoModal.classList.add('active');
 }
 
 function closeVideo() {
     videoModal.classList.remove('active');
-    
-    // IMPORTANT: Vider l'iframe empêche la vidéo ou l'audio de continuer en arrière-plan
-    moviePlayer.src = ''; 
 }
 
 closeModalBtn.addEventListener('click', closeVideo);
