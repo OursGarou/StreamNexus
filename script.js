@@ -243,12 +243,10 @@ function openVideo(url) {
     }
 
     // Gestion Intelligente des liens Google Drive
-    // Remplace automatiquement la fin des liens par /preview pour permettre le streaming direct
+    // Remplace complètement /view, /edit ou /open ET retire tous les paramètres parasites (comme ?usp=sharing)
     let finalUrl = url.trim();
     if (finalUrl.includes('drive.google.com')) {
-        finalUrl = finalUrl.replace('/view', '/preview')
-                           .replace('/edit', '/preview')
-                           .replace('/open', '/preview');
+        finalUrl = finalUrl.replace(/\/(view|edit|open).*/, '/preview');
     }
 
     moviePlayer.src = finalUrl;
